@@ -179,6 +179,9 @@
         [["capitalize"]] {"text-transform" "capitalize"}
         [["normal-case"]] {"text-transform" "none"}
 
+        [["tracking" (s :guard (cfg-> :letter-spacing))]]
+        {"letter-spacing" (cfg-> :letter-spacing s)}
+
         ;; display
 
         [["block"]] {"display" "block"}
@@ -220,6 +223,10 @@
         [["flex" "grow"]] (tw->emo ["flex" "grow" "default"])
         [["flex" "grow" (g :guard (cfg-> :flex-grow))]]
         {"flex-grow" (cfg-> :flex-grow g)}
+
+        [["flex" "no" "wrap"]] {"flex-wrap" "no-wrap"}
+        [["flex" "wrap"]] {"flex-wrap" "wrap"}
+        [["flex" "wrap" "reverse"]] {"flex-wrap" "wrap-reverse"}
 
         ;; borders
 

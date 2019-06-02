@@ -8,7 +8,7 @@
                                cljsjs/emotion            {:mvn/version "10.0.6-0"}
                                uix.core                  {:git/url   "https://github.com/roman01la/uix.git"
                                                           :deps/root "core"
-                                                          :sha       "845cf9cb1c9c875aa8976d10a37bfe615ab0ba61"}
+                                                          :sha       "ecf04297986071e7b89283bb2835f423987e7d36"}
                                uix.dom                   {:git/url   "https://github.com/roman01la/uix.git"
                                                           :deps/root "dom"
-                                                          :sha       "845cf9cb1c9c875aa8976d10a37bfe615ab0ba61"}}}}}
+                                                          :sha       "ecf04297986071e7b89283bb2835f423987e7d36"}}}}}
