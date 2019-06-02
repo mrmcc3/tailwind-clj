@@ -23,6 +23,5 @@ The library is very much a work in progress. I created it mainly as a learning
 exercise and to experiment with tailwind, emotion and uix.
 
 `dev/tailwind-clj/examples.cljs` has some example components from the tailwind
-site. 
-
+site. result https://mrmcc3.github.io/tailwind-clj/index.html
 
