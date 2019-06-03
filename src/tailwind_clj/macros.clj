@@ -151,7 +151,8 @@
 
         ;; font family
 
-        ;; TODO
+        [["font" (f :guard (cfg-> :font-family))]]
+        {"font-family" (str/join "," (cfg-> :font-family f))}
 
         ;; font size
 
@@ -160,11 +161,17 @@
 
         ;; font smoothing
 
-        ;; TODO
+        [["antialiased"]]
+        {"-webkit-font-smoothing"  "antialiased"
+         "-moz-osx-font-smoothing" "grayscale"}
+        [["subpixel-antialiased"]]
+        {"-webkit-font-smoothing"  "auto"
+         "-moz-osx-font-smoothing" "auto"}
 
         ;; font style
 
-        ;; TODO
+        [["italic"]] {"font-style" "italic"}
+        [["not-italic"]] {"font-style" "normal"}
 
         ;; font weight
 
@@ -183,11 +190,13 @@
 
         ;; list style type
 
-        ;; TODO
+        [["list" (s :guard #{"none" "disc" "decimal"})]]
+        {"list-style-type" s}
 
         ;; list style position
 
-        ;; TODO
+        [["list" (s :guard #{"inside" "outside"})]]
+        {"list-style-position" s}
 
         ;; text align
 
@@ -201,7 +210,9 @@
 
         ;; text decoration
 
-        ;; TODO
+        [["underline"]] {"text-decoration" "underline"}
+        [["line" "through"]] {"text-decoration" "line-through"}
+        [["no" "underline"]] {"text-decoration" "none"}
 
         ;; text transform
 
@@ -212,15 +223,27 @@
 
         ;; vertical align
 
-        ;; TODO
+        [["align" (s :guard #{"baseline" "top" "middle" "bottom"})]]
+        {"vertical-align" s}
+        [["align" "text" (s :guard #{"top" "bottom"})]]
+        {"vertical-align" (str "text-" s)}
 
         ;; whitespace
 
-        ;; TODO
+        [["whitespace" "normal"]] {"white-space" "normal"}
+        [["whitespace" "no" "wrap"]] {"white-space" "nowrap"}
+        [["whitespace" "pre"]] {"white-space" "pre"}
+        [["whitespace" "pre" "line"]] {"white-space" "pre-line"}
+        [["whitespace" "pre" "wrap"]] {"white-space" "pre-wrap"}
 
         ;; word break
 
-        ;; TODO
+        [["break" "normal"]] {"word-break" "normal" "overflow-wrap" "normal"}
+        [["break" "words"]] {"overflow-wrap" "break-word"}
+        [["break" "all"]] {"word-break" "break-all"}
+        [["truncate"]] {"overflow"      "hidden"
+                        "text-overflow" "ellipsis"
+                        "white-space"   "nowrap"}
 
         ;; ------------------ BACKGROUNDS --------------------
 
