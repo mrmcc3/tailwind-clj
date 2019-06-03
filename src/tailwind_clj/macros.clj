@@ -97,15 +97,21 @@
 
         ;; float
 
-        ;; TODO
+        [["float" (f :guard #{"right" "left" "none"})]] {"float" f}
+        [["clearfix"]] "&::after{content:\"\";display:table;clear:both;}"
 
         ;; object fit
 
-        ;; TODO
+        [["object" "scale" "down"]] {"object-fit" "scale-down"}
+        [["object" (f :guard #{"contain" "cover" "fill" "none"})]]
+        {"object-fit" f}
 
         ;; object position
 
-        ;; TODO
+        [["object" (p :guard #{"top" "left" "right" "bottom" "center"})]]
+        {"object-position" p}
+        [["object" (lr :guard #{"left" "right"}) (tb :guard #{"top" "bottom"})]]
+        {"object-position" (str lr " " tb)}
 
         ;; overflow
 
@@ -117,19 +123,29 @@
 
         ;; position
 
-        ;; TODO
+        [[(p :guard #{"static" "fixed" "absolute" "relative" "sticky"})]]
+        {"position" p}
 
         ;; top left bottom right
 
-        ;; TODO
+        [[(p :guard #{"top" "left" "bottom" "right"}) (i :guard (cfg-> :inset))]]
+        {p (cfg-> :inset i)}
+
+        [["inset" (i :guard (cfg-> :inset))]]
+        {"top" i "left" i "bottom" i "right" i}
+
+        [["inset" "x" (i :guard (cfg-> :inset))]] {"left" i "right" i}
+        [["inset" "y" (i :guard (cfg-> :inset))]] {"top" i "bottom" i}
 
         ;; visibility
 
-        ;; TODO
+        [["visible"]] {"visibility" "visible"}
+        [["invisible"]] {"visibility" "hidden"}
 
         ;; z-index
 
-        ;; TODO
+        [["z" (z :guard (cfg-> :z-index))]]
+        {"z-index" (cfg-> :z-index z)}
 
         ;; ------------------ TYPOGRAPHY ---------------------
 
