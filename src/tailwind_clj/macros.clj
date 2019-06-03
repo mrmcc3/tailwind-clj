@@ -81,7 +81,11 @@
 
         ;; container
 
-        ;; TODO
+        [["container"]]
+        (reduce-kv
+          #(assoc %1 (format "@media (min-width: %s)" %3) {"max-width" %3})
+          {"width" "100%"}
+          (cfg-> :screens))
 
         ;; display
 
@@ -344,11 +348,19 @@
 
         ;; align content
 
-        ;; TODO
+        [["content" "start"]] {"align-content" "flex-start"}
+        [["content" "center"]] {"align-content" "center"}
+        [["content" "end"]] {"align-content" "flex-end"}
+        [["content" "between"]] {"align-content" "space-between"}
+        [["content" "around"]] {"align-content" "space-around"}
 
         ;; align self
 
-        ;; TODO
+        [["self" "auto"]] {"align-self" "auto"}
+        [["self" "start"]] {"align-self" "flex-start"}
+        [["self" "center"]] {"align-self" "center"}
+        [["self" "end"]] {"align-self" "flex-end"}
+        [["self" "stretch"]] {"align-self" "stretch"}
 
         ;; justify content
 
@@ -377,7 +389,8 @@
 
         ;; order
 
-        ;; TODO
+        [["order" (o :guard (cfg-> :order))]]
+        {"order" (cfg-> :order o)}
 
         ;; -------------------- SPACING ----------------------
 
@@ -393,7 +406,6 @@
         [["" (v :guard margin-fns) (m :guard (cfg-> :margin))]]
         ((margin-fns v) (cfg-> :margin (str "-" m)))
 
-
         ;; -------------------- SIZING -----------------------
 
         ;; width
@@ -403,7 +415,8 @@
 
         ;; min width
 
-        ;; TODO
+        [["min" "w" (w :guard (cfg-> :min-width))]]
+        {"min-width" (cfg-> :min-width w)}
 
         ;; max width
 
@@ -417,21 +430,25 @@
 
         ;; min height
 
-        ;; TODO
+        [["min" "h" (h :guard (cfg-> :min-height))]]
+        {"min-height" (cfg-> :min-height h)}
 
         ;; max height
 
-        ;; TODO
+        [["max" "h" (h :guard (cfg-> :max-height))]]
+        {"max-height" (cfg-> :max-height h)}
 
         ;; -------------------- TABLES -----------------------
 
         ;; border collapse
 
-        ;; TODO
+        [["border" "collapse"]] {"border-collapse" "collapse"}
+        [["border" "separate"]] {"border-collapse" "separate"}
 
         ;; table layout
 
-        ;; TODO
+        [["table" "auto"]] {"table-layout" "auto"}
+        [["table" "fixed"]] {"table-layout" "fixed"}
 
         ;; ------------------- EFFECTS -----------------------
 
@@ -446,7 +463,6 @@
         [["opacity" (o :guard (cfg-> :opacity))]]
         {"opacity" (cfg-> :opacity o)}
 
-
         ;; ---------------- INTERACTIVITY --------------------
 
         ;; appearance
@@ -456,23 +472,29 @@
 
         ;; cursor
 
-        ;; TODO
+        [["cursor" & rest]]
+        {"cursor" (cfg-> :cursor (str/join "-" rest))}
 
         ;; outline
 
-        ;; TODO
+        [["outline" "none"]] {"outline" "0"}
 
         ;; pointer events
 
-        ;; TODO
+        [["pointer" "events" "none"]] {"pointer-events" "none"}
+        [["pointer" "events" "auto"]] {"pointer-events" "auto"}
 
         ;; resize
 
-        ;; TODO
+        [["resize" "none"]] {"resize" "none"}
+        [["resize"]] {"resize" "both"}
+        [["resize" "y"]] {"resize" "vertical"}
+        [["resize" "x"]] {"resize" "horizontal"}
 
         ;; user select
 
-        ;; TODO
+        [["select" (s :guard #{"none" "text" "all" "auto"})]]
+        {"user-select" s}
 
         ;; --------------------- SVG -------------------------
 
