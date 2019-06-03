@@ -66,7 +66,7 @@
     (fn [fragments]
       (match [fragments]
 
-        ;; media queries
+        ;; responsive breakpoints - media queries
 
         [[(s :guard (cfg-> :screens)) & rest]]
         {(format "@media (min-width: %s)" (cfg-> :screens s))
@@ -77,110 +77,11 @@
         [[(p :guard pseudo-classes) & rest]]
         {(str ":" p) (tw->emo rest)}
 
-        ;; background
+        ;; -------------------- LAYOUT -----------------------
 
-        [["bg" (a :guard background-attachments)]]
-        {"background-attachment" a}
+        ;; container
 
-        [["bg" (c :guard (cfg-> :background-color)) & rest]]
-        {"background-color" (apply cfg-> :background-color c rest)}
-
-        [["bg" "left" "bottom"]] "background-position: left bottom"
-        [["bg" "left" "top"]] "background-position: left bottom"
-        [["bg" "right" "bottom"]] "background-position: left bottom"
-        [["bg" "right" "top"]] "background-position: left bottom"
-        [["bg" (p :guard #{"bottom" "center" "left" "right" "top"})]]
-        {"background-position" p}
-
-        [["bg" "repeat"]] "background-repeat: repeat"
-        [["bg" "no" "repeat"]] "background-repeat: no-repeat"
-        [["bg" "repeat" "x"]] "background-repeat: repeat-x"
-        [["bg" "repeat" "y"]] "background-repeat: repeat-y"
-        [["bg" "repeat" "round"]] "background-repeat: repeat-round"
-        [["bg" "repeat" "space"]] "background-repeat: repeat-space"
-
-        [["bg" (s :guard (cfg-> :background-size))]]
-        {"background-size" (cfg-> :background-size s)}
-
-        ;; border radius
-
-        [["rounded"]] (tw->emo ["rounded" "default"])
-        [["rounded" (r :guard (cfg-> :border-radius))]]
-        {"border-radius" (cfg-> :border-radius r)}
-
-        [["rounded" (c :guard corners)]] (tw->emo ["rounded" c "default"])
-        [["rounded" (c :guard corners) (r :guard (cfg-> :border-radius))]]
-        {(format "border-%s-radius" (corners c)) (cfg-> :border-radius r)}
-
-        [["rounded" (s :guard sides)]] (tw->emo ["rounded" s "default"])
-        [["rounded" (s :guard sides) (r :guard (cfg-> :border-radius))]]
-        (apply merge (map #(tw->emo ["rounded" % r]) (sides s)))
-
-        ;; overflow
-
-        [["overflow" (o :guard overflow)]] {"overflow" o}
-        [["overflow" (d :guard #{"x" "y"}) (o :guard overflow)]]
-        {(str "overflow-" d) o}
-        [["scrolling" (o :guard #{"touch" "auto"})]]
-        {"-webkit-overflow-scrolling" o}
-
-        ;; shadows
-
-        [["shadow"]] (tw->emo ["shadow" "default"])
-        [["shadow" (s :guard (cfg-> :box-shadow))]]
-        {"box-shadow" (cfg-> :box-shadow s)}
-
-        ;; width
-
-        [["w" (w :guard (cfg-> :width))]]
-        {"width" (cfg-> :width w)}
-
-        [["max" "w" (s :guard (cfg-> :max-width))]]
-        {"max-width" (cfg-> :max-width s)}
-
-        ;; height
-
-        [["h" (h :guard (cfg-> :height))]]
-        {"height" (cfg-> :height h)}
-
-        ;; line height
-
-        [["leading" (h :guard (cfg-> :line-height))]]
-        {"line-height" (cfg-> :line-height h)}
-
-        ;; padding
-
-        [[(v :guard padding-fns) (p :guard (cfg-> :padding))]]
-        ((padding-fns v) (cfg-> :padding p))
-
-        ;; margin
-
-        [[(v :guard margin-fns) (m :guard (cfg-> :margin))]]
-        ((margin-fns v) (cfg-> :margin m))
-        [["" (v :guard margin-fns) (m :guard (cfg-> :margin))]]
-        ((margin-fns v) (cfg-> :margin (str "-" m)))
-
-        ;; font
-
-        [["font" (w :guard (cfg-> :font-weight))]]
-        {"font-weight" (cfg-> :font-weight w)}
-
-        [["text" (s :guard (cfg-> :font-size))]]
-        {"font-size" (cfg-> :font-size s)}
-
-        [["text" (c :guard (cfg-> :colors)) & rest]]
-        {"color" (apply cfg-> :colors c rest)}
-
-        [["text" (c :guard text-align)]]
-        {"text-align" c}
-
-        [["uppercase"]] {"text-transform" "uppercase"}
-        [["lowercase"]] {"text-transform" "lowercase"}
-        [["capitalize"]] {"text-transform" "capitalize"}
-        [["normal-case"]] {"text-transform" "none"}
-
-        [["tracking" (s :guard (cfg-> :letter-spacing))]]
-        {"letter-spacing" (cfg-> :letter-spacing s)}
+        ;; TODO
 
         ;; display
 
@@ -194,41 +95,165 @@
         [["table" "cell"]] {"display" "table-cell"}
         [["hidden"]] {"display" "none"}
 
-        ;; flex
+        ;; float
 
-        [["flex" (f :guard (cfg-> :flex))]]
-        {"flex" (cfg-> :flex f)}
+        ;; TODO
 
-        [["flex" "row"]] {"flex-direction" "row"}
-        [["flex" "row" "reverse"]] {"flex-direction" "row-reverse"}
-        [["flex" "col"]] {"flex-direction" "column"}
-        [["flex" "col" "reverse"]] {"flex-direction" "column-reverse"}
+        ;; object fit
 
-        [["justify" "start"]] {"justify-content" "flex-start"}
-        [["justify" "center"]] {"justify-content" "center"}
-        [["justify" "end"]] {"justify-content" "flex-end"}
-        [["justify" "between"]] {"justify-content" "space-between"}
-        [["justify" "around"]] {"justify-content" "space-around"}
+        ;; TODO
 
-        [["items" "stretch"]] {"align-items" "stretch"}
-        [["items" "start"]] {"align-items" "flex-start"}
-        [["items" "center"]] {"align-items" "center"}
-        [["items" "end"]] {"align-items" "flex-end"}
-        [["items" "baseline"]] {"align-items" "baseline"}
+        ;; object position
 
-        [["flex" "shrink"]] (tw->emo ["flex" "shrink" "default"])
-        [["flex" "shrink" (s :guard (cfg-> :flex-shrink))]]
-        {"flex-shrink" (cfg-> :flex-shrink s)}
+        ;; TODO
 
-        [["flex" "grow"]] (tw->emo ["flex" "grow" "default"])
-        [["flex" "grow" (g :guard (cfg-> :flex-grow))]]
-        {"flex-grow" (cfg-> :flex-grow g)}
+        ;; overflow
 
-        [["flex" "no" "wrap"]] {"flex-wrap" "no-wrap"}
-        [["flex" "wrap"]] {"flex-wrap" "wrap"}
-        [["flex" "wrap" "reverse"]] {"flex-wrap" "wrap-reverse"}
+        [["overflow" (o :guard overflow)]] {"overflow" o}
+        [["overflow" (d :guard #{"x" "y"}) (o :guard overflow)]]
+        {(str "overflow-" d) o}
+        [["scrolling" (o :guard #{"touch" "auto"})]]
+        {"-webkit-overflow-scrolling" o}
 
-        ;; borders
+        ;; position
+
+        ;; TODO
+
+        ;; top left bottom right
+
+        ;; TODO
+
+        ;; visibility
+
+        ;; TODO
+
+        ;; z-index
+
+        ;; TODO
+
+        ;; ------------------ TYPOGRAPHY ---------------------
+
+        ;; font family
+
+        ;; TODO
+
+        ;; font size
+
+        [["text" (s :guard (cfg-> :font-size))]]
+        {"font-size" (cfg-> :font-size s)}
+
+        ;; font smoothing
+
+        ;; TODO
+
+        ;; font style
+
+        ;; TODO
+
+        ;; font weight
+
+        [["font" (w :guard (cfg-> :font-weight))]]
+        {"font-weight" (cfg-> :font-weight w)}
+
+        ;; letter spacing
+
+        [["tracking" (s :guard (cfg-> :letter-spacing))]]
+        {"letter-spacing" (cfg-> :letter-spacing s)}
+
+        ;; line height
+
+        [["leading" (h :guard (cfg-> :line-height))]]
+        {"line-height" (cfg-> :line-height h)}
+
+        ;; list style type
+
+        ;; TODO
+
+        ;; list style position
+
+        ;; TODO
+
+        ;; text align
+
+        [["text" (c :guard text-align)]]
+        {"text-align" c}
+
+        ;; text color
+
+        [["text" (c :guard (cfg-> :colors)) & rest]]
+        {"color" (apply cfg-> :colors c rest)}
+
+        ;; text decoration
+
+        ;; TODO
+
+        ;; text transform
+
+        [["uppercase"]] {"text-transform" "uppercase"}
+        [["lowercase"]] {"text-transform" "lowercase"}
+        [["capitalize"]] {"text-transform" "capitalize"}
+        [["normal-case"]] {"text-transform" "none"}
+
+        ;; vertical align
+
+        ;; TODO
+
+        ;; whitespace
+
+        ;; TODO
+
+        ;; word break
+
+        ;; TODO
+
+        ;; ------------------ BACKGROUNDS --------------------
+
+        ;; attachment
+
+        [["bg" (a :guard background-attachments)]]
+        {"background-attachment" a}
+
+        ;; color
+
+        [["bg" (c :guard (cfg-> :background-color)) & rest]]
+        {"background-color" (apply cfg-> :background-color c rest)}
+
+        ;; position
+
+        [["bg" "left" "bottom"]] "background-position: left bottom"
+        [["bg" "left" "top"]] "background-position: left bottom"
+        [["bg" "right" "bottom"]] "background-position: left bottom"
+        [["bg" "right" "top"]] "background-position: left bottom"
+        [["bg" (p :guard #{"bottom" "center" "left" "right" "top"})]]
+        {"background-position" p}
+
+        ;; repeat
+
+        [["bg" "repeat"]] "background-repeat: repeat"
+        [["bg" "no" "repeat"]] "background-repeat: no-repeat"
+        [["bg" "repeat" "x"]] "background-repeat: repeat-x"
+        [["bg" "repeat" "y"]] "background-repeat: repeat-y"
+        [["bg" "repeat" "round"]] "background-repeat: repeat-round"
+        [["bg" "repeat" "space"]] "background-repeat: repeat-space"
+
+        ;; size
+
+        [["bg" (s :guard (cfg-> :background-size))]]
+        {"background-size" (cfg-> :background-size s)}
+
+        ;; -------------------- BORDERS ----------------------
+
+        ;; color
+
+        [["border" (c :guard (cfg-> :colors)) & rest]]
+        {"border-color" (apply cfg-> :colors c rest)}
+
+        ;; style
+
+        [["border" (s :guard border-style)]]
+        {"border-style" s}
+
+        ;; width
 
         [["border"]] (tw->emo ["border" "default"])
 
@@ -241,26 +266,186 @@
         [["border" (w :guard (cfg-> :border-width))]]
         {"border-width" (cfg-> :border-width w)}
 
-        [["border" (c :guard (cfg-> :colors)) & rest]]
-        {"border-color" (apply cfg-> :colors c rest)}
+        ;; radius
 
-        [["border" (s :guard border-style)]]
-        {"border-style" s}
+        [["rounded"]] (tw->emo ["rounded" "default"])
+        [["rounded" (r :guard (cfg-> :border-radius))]]
+        {"border-radius" (cfg-> :border-radius r)}
 
-        ;; fill
+        [["rounded" (c :guard corners)]] (tw->emo ["rounded" c "default"])
+        [["rounded" (c :guard corners) (r :guard (cfg-> :border-radius))]]
+        {(format "border-%s-radius" (corners c)) (cfg-> :border-radius r)}
 
-        [["fill" (f :guard (cfg-> :fill))]]
-        {"fill" (cfg-> :fill f)}
+        [["rounded" (s :guard sides)]] (tw->emo ["rounded" s "default"])
+        [["rounded" (s :guard sides) (r :guard (cfg-> :border-radius))]]
+        (apply merge (map #(tw->emo ["rounded" % r]) (sides s)))
+
+        ;; -------------------- FLEXBOX ----------------------
+
+        ;; direction
+
+        [["flex" "row"]] {"flex-direction" "row"}
+        [["flex" "row" "reverse"]] {"flex-direction" "row-reverse"}
+        [["flex" "col"]] {"flex-direction" "column"}
+        [["flex" "col" "reverse"]] {"flex-direction" "column-reverse"}
+
+        ;; wrap
+
+        [["flex" "no" "wrap"]] {"flex-wrap" "no-wrap"}
+        [["flex" "wrap"]] {"flex-wrap" "wrap"}
+        [["flex" "wrap" "reverse"]] {"flex-wrap" "wrap-reverse"}
+
+        ;; align items
+
+        [["items" "stretch"]] {"align-items" "stretch"}
+        [["items" "start"]] {"align-items" "flex-start"}
+        [["items" "center"]] {"align-items" "center"}
+        [["items" "end"]] {"align-items" "flex-end"}
+        [["items" "baseline"]] {"align-items" "baseline"}
+
+        ;; align content
+
+        ;; TODO
+
+        ;; align self
+
+        ;; TODO
+
+        ;; justify content
+
+        [["justify" "start"]] {"justify-content" "flex-start"}
+        [["justify" "center"]] {"justify-content" "center"}
+        [["justify" "end"]] {"justify-content" "flex-end"}
+        [["justify" "between"]] {"justify-content" "space-between"}
+        [["justify" "around"]] {"justify-content" "space-around"}
+
+        ;; flex
+
+        [["flex" (f :guard (cfg-> :flex))]]
+        {"flex" (cfg-> :flex f)}
+
+        ;; grow
+
+        [["flex" "grow"]] (tw->emo ["flex" "grow" "default"])
+        [["flex" "grow" (g :guard (cfg-> :flex-grow))]]
+        {"flex-grow" (cfg-> :flex-grow g)}
+
+        ;; shrink
+
+        [["flex" "shrink"]] (tw->emo ["flex" "shrink" "default"])
+        [["flex" "shrink" (s :guard (cfg-> :flex-shrink))]]
+        {"flex-shrink" (cfg-> :flex-shrink s)}
+
+        ;; order
+
+        ;; TODO
+
+        ;; -------------------- SPACING ----------------------
+
+        ;; padding
+
+        [[(v :guard padding-fns) (p :guard (cfg-> :padding))]]
+        ((padding-fns v) (cfg-> :padding p))
+
+        ;; margin
+
+        [[(v :guard margin-fns) (m :guard (cfg-> :margin))]]
+        ((margin-fns v) (cfg-> :margin m))
+        [["" (v :guard margin-fns) (m :guard (cfg-> :margin))]]
+        ((margin-fns v) (cfg-> :margin (str "-" m)))
+
+
+        ;; -------------------- SIZING -----------------------
+
+        ;; width
+
+        [["w" (w :guard (cfg-> :width))]]
+        {"width" (cfg-> :width w)}
+
+        ;; min width
+
+        ;; TODO
+
+        ;; max width
+
+        [["max" "w" (s :guard (cfg-> :max-width))]]
+        {"max-width" (cfg-> :max-width s)}
+
+        ;; height
+
+        [["h" (h :guard (cfg-> :height))]]
+        {"height" (cfg-> :height h)}
+
+        ;; min height
+
+        ;; TODO
+
+        ;; max height
+
+        ;; TODO
+
+        ;; -------------------- TABLES -----------------------
+
+        ;; border collapse
+
+        ;; TODO
+
+        ;; table layout
+
+        ;; TODO
+
+        ;; ------------------- EFFECTS -----------------------
+
+        ;; box shadows
+
+        [["shadow"]] (tw->emo ["shadow" "default"])
+        [["shadow" (s :guard (cfg-> :box-shadow))]]
+        {"box-shadow" (cfg-> :box-shadow s)}
+
+        ;; opacity
+
+        [["opacity" (o :guard (cfg-> :opacity))]]
+        {"opacity" (cfg-> :opacity o)}
+
+
+        ;; ---------------- INTERACTIVITY --------------------
 
         ;; appearance
 
         [["appearance" "none"]] {"appearance" "none"}
         [["outline" "none"]] {"outline" "none"}
 
-        ;; opacity
+        ;; cursor
 
-        [["opacity" (o :guard (cfg-> :opacity))]]
-        {"opacity" (cfg-> :opacity o)}
+        ;; TODO
+
+        ;; outline
+
+        ;; TODO
+
+        ;; pointer events
+
+        ;; TODO
+
+        ;; resize
+
+        ;; TODO
+
+        ;; user select
+
+        ;; TODO
+
+        ;; --------------------- SVG -------------------------
+
+        ;; fill
+
+        [["fill" (f :guard (cfg-> :fill))]]
+        {"fill" (cfg-> :fill f)}
+
+        ;; stroke
+
+        [["stroke" (s :guard (cfg-> :stroke))]]
+        {"stroke" (cfg-> :stroke s)}
 
         ))))
 

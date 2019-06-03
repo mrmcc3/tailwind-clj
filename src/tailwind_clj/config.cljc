@@ -308,6 +308,8 @@
 
 (def padding spacing)
 
+(def stroke {"current" "currentColor"})
+
 (def text-color colors)
 
 (def width
@@ -385,6 +387,7 @@
    "opacity"          opacity
    "order"            order
    "padding"          padding
+   "stroke"           stroke
    "text-color"       text-color
    "width"            width
    "z-index"          z-index})
