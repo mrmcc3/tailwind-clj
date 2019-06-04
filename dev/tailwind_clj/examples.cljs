@@ -174,8 +174,6 @@
 (defn ^:after-load render []
   (uix.dom/render [examples] js/root))
 
-(render)
-
 ;; from uix.recipes.dynamic-styles
 (defn css-uix-transform [attrs]
   (if-not (contains? attrs :css)
