@@ -32,7 +32,7 @@ to define attributes like border-color, padding and margin.
 
 * The default config before expansion is at `src/tailwind-defaults.edn`.
 * To view the expanded default config run `clj -m tailwind-clj.macros default`
-* To drill down into the config run pass extra args `clj -m tailwind-clj.macros default colors blue`
+* To drill down into the config pass extra args `clj -m tailwind-clj.macros default colors blue`
 * To view all the default config keys run `clj -m tailwind-clj.macros default keys`
 
 You can also test the `tw` macro out at the command line
