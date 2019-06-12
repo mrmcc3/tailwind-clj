@@ -49,8 +49,8 @@ file in the classpath with your customizations. This file will be read and
 merged with the default config **before** expansion using 
 [meta-merge](https://github.com/weavejester/meta-merge). 
 
-For example `{"spacing" {"perfect" "23px"}}` would add `perfect` to spacing
-and all attributes that depend on it like `margin` and `spacing`
+For example `{"spacing" {"perfect" "23px"}}` would add `perfect` to `spacing`
+and all attributes that depend on it like `margin` and `padding`
 
 ```
 $ clj -m tailwind-clj.macros tw mb-perfect px-perfect
