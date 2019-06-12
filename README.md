@@ -24,3 +24,52 @@ exercise and to experiment with tailwind, emotion and uix.
 `dev/tailwind-clj/examples.cljs` has some example components from the tailwind
 site. result https://mrmcc3.github.io/tailwind-clj/
 
+### Configuration
+
+The tailwind config/design system is built by first defining some base attributes 
+like colors and spacing. Then the config is expanded by using the base definitions 
+to define attributes like border-color, padding and margin.
+
+* The default config before expansion is at `src/tailwind-defaults.edn`.
+* To view the expanded default config run `clj -m tailwind-clj.macros default`
+* To drill down into the config run pass extra args `clj -m tailwind-clj.macros default colors blue`
+* To view all the default config keys run `clj -m tailwind-clj.macros default keys`
+
+You can also test the `tw` macro out at the command line
+
+```
+$ clj -m tailwind-clj.macros tw font-mono
+font-family:Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+```
+
+### User customization
+
+If you would like to customize the configuration then place a `tailwind.edn`
+file in the classpath with your customizations. This file will be read and
+merged with the default config **before** expansion using 
+[meta-merge](https://github.com/weavejester/meta-merge). 
+
+For example `{"spacing" {"perfect" "23px"}}` would add `perfect` to spacing
+and all attributes that depend on it like `margin` and `spacing`
+
+```
+$ clj -m tailwind-clj.macros tw mb-perfect px-perfect
+margin-bottom:23px;padding-left:23px;padding-right:23px;
+```
+
+If you prefer to completely replace the default spacing scale then the
+meta-merge hint ^:replace is what you want 
+`{"spacing" ^:replace {"perfect" "23px"}}`
+
+If you want to skip the expansion mechanism you can add an extra `^:final` 
+hint to a calculated attribute. For example
+`{"padding" ^:replace ^:final {"perfect" "23px"}}`
+
+### Base styles
+
+Tailwind uses a combination of normalize.css and some extra 
+`preflight` resets. You can call the `base` macro to generate
+the global styles. Or run from the command line
+```
+$ clj -m tailwind-clj.macros base
+```

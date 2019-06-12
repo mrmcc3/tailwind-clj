@@ -1,6 +1,6 @@
 (ns ^:figwheel-hooks tailwind-clj.examples
   (:require-macros
-    [tailwind-clj.macros :refer [tw preflight]])
+    [tailwind-clj.macros :refer [tw base]])
   (:require
     [cljsjs.emotion]
     [uix.core.alpha :as uix]
@@ -165,9 +165,9 @@
    [spacer]
    [form-1]
    [spacer]
-   [form-2]])
-
-
+   [form-2]
+   [spacer]
+   [:pre [:code "(println \"test mono font config\")"]]])
 
 ;; setup
 
@@ -187,7 +187,7 @@
           (assoc :class class)))))
 
 (defonce startup
-  (do (js/emotion.injectGlobal (preflight))
+  (do (js/emotion.injectGlobal (base))
       (uix/add-transform-fn css-uix-transform)
       (render)
       true))
