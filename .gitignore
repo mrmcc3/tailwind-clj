@@ -2,3 +2,6 @@
 .idea
 *.iml
 /resources/public/js
+/resources/public/css
+node_modules
+yarn.lock

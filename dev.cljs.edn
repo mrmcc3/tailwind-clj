@@ -1,6 +1,7 @@
-^{:watch-dirs ["dev" "src"] :open-url false}
-{:output-dir "resources/public/js/build"
- :asset-path "/js/build"
- :modules    {:cljs-base {:output-to "resources/public/js/base.js"}
-              :examples  {:output-to "resources/public/js/examples.js"
-                          :entries   #{tailwind-clj.examples}}}}
+^{:watch-dirs ["dev" "src"]
+  :open-url false
+  :css-dirs ["resources/public/css/tw-build"]}
+{:main       tailwind.examples
+ :output-to  "resources/public/js/examples.js"
+ :output-dir "resources/public/js/build"
+ :asset-path "/js/build"}

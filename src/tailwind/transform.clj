@@ -1,114 +1,15 @@
-(ns tailwind-clj.macros
+(ns tailwind.transform
   (:require
     [clojure.core.match :refer [match]]
-    [clojure.java.io :as io]
-    [clojure.string :as str]
-    [clojure.edn :as edn]
-    [meta-merge.core :as mm]
-    [clojure.pprint :as pprint])
-  (:import (com.sangupta.murmur Murmur2)))
+    [tailwind.config :refer [cfg->]]
+    [tailwind.util :as u :refer [rule]]
+    [clojure.string :as str]))
 
-;; configuration
-
-(defn negate [m]
-  (reduce-kv #(assoc %1 (str "-" %2) (str "-" %3)) {} m))
-
-(defn final [v f & args]
-  (if (:final (meta v)) v (apply f v args)))
-
-(defn border-color-default [cfg]
-  (let [default (get-in cfg ["border-color" "default"])]
-    (if (vector? default)
-      (assoc-in cfg ["border-color" "default"]
-                (get-in cfg default "currentColor"))
-      cfg)))
-
-(defn expand [{:strs [colors spacing] :as cfg}]
-  (-> (border-color-default cfg)
-      (update "background-color" final merge colors)
-      (update "border-color" final merge colors)
-      (update "text-color" final merge colors)
-      (update "height" final merge spacing)
-      (update "padding" final merge spacing)
-      (update "width" final merge spacing)
-      (update "margin" final merge spacing (negate spacing))))
-
-(def init-defaults
-  (-> "tailwind-defaults.edn" io/resource slurp edn/read-string))
-
-(def init-user
-  (some-> "tailwind.edn" io/resource slurp edn/read-string))
-
-(def default-config
-  (expand init-defaults))
-
-(def config
-  (expand
-    (mm/meta-merge init-defaults init-user)))
-
-;; tailwind helpers
-
-(defn rule [& kvs]
-  (->> (partition-all 2 kvs)
-       (map (fn [[k v]] (str (name k) ":" v ";")))
-       (apply str)))
-
-(defn cfg-> [& paths]
-  (get-in config (map name paths)))
-
-(def pseudo-classes
-  #{"group-hover" "focus-within" "hover" "focus" "active"})
-
-(def background-attachments
-  #{"fixed" "local" "scroll"})
-
-(def corners
-  {"tl" "top-left"
-   "tr" "top-right"
-   "bl" "bottom-left"
-   "br" "bottom-right"})
-
-(def sides
-  {"t" #{"tl" "tr"}
-   "r" #{"tr" "br"}
-   "b" #{"br" "bl"}
-   "l" #{"tl" "bl"}})
-
-(def text-align
-  #{"left" "center" "right" "justify"})
-
-(defn side-fns [pre v]
-  (case (second v)
-    nil #(rule pre %)
-    \t #(rule (str pre "-top") %)
-    \b #(rule (str pre "-bottom") %)
-    \l #(rule (str pre "-left") %)
-    \r #(rule (str pre "-right") %)
-    \x #(rule (str pre "-left") % (str pre "-right") %)
-    \y #(rule (str pre "-top") % (str pre "-bottom") %)))
-
-(def padding-fns
-  (let [ps ["p" "px" "py" "pt" "pl" "pr" "pb"]]
-    (zipmap ps (map (partial side-fns "padding") ps))))
-
-(def margin-fns
-  (let [ps ["m" "mx" "my" "mt" "ml" "mr" "mb"]]
-    (zipmap ps (map (partial side-fns "margin") ps))))
-
-(def overflow
-  #{"auto" "hidden" "visible" "scroll"})
-
-(def border-sides
-  {"t" "top" "l" "left" "r" "right" "b" "bottom"})
-
-(def border-style
-  #{"solid" "dashed" "dotted" "none"})
-
-;; tailwind -> css data.
+;; tailwind classes -> css
 ;; the transform is represented using core.match patterns
 
-(def tw->emo
-  "Accepts tailwind classname fragments and returns the corresponding css data."
+(def fragments->emotion
+  "Accepts tailwind class fragments and returns the corresponding css (emotion style)."
   (memoize
     (fn [fragments]
       (match fragments
@@ -116,12 +17,12 @@
         ;; responsive breakpoints - media queries
 
         [(s :guard (cfg-> :screens)) & rest]
-        (format "@media(min-width: %s){%s}" (cfg-> :screens s) (tw->emo rest))
+        (format "@media(min-width: %spx){%s}" (cfg-> :screens s) (fragments->emotion rest))
 
         ;; pseudo classes
 
-        [(p :guard pseudo-classes) & rest]
-        (format ":%s{%s}" p (tw->emo rest))
+        [(p :guard u/pseudo-classes) & rest]
+        (format ":%s{%s}" p (fragments->emotion rest))
 
         ;; -------------------- LAYOUT -----------------------
 
@@ -129,8 +30,8 @@
 
         ["container"]
         (reduce-kv
-          #(str %1 (format "@media(min-width:%s){max-width:%s}" %3 %3))
-          "width:100;"
+          #(str %1 (format "@media(min-width:%spx){max-width:%spx;}" %3 %3))
+          "width:100%;"
           (cfg-> :screens))
 
         ;; display
@@ -165,8 +66,8 @@
 
         ;; overflow
 
-        ["overflow" (o :guard overflow)] (rule "overflow" o)
-        ["overflow" (d :guard #{"x" "y"}) (o :guard overflow)]
+        ["overflow" (o :guard u/overflow)] (rule "overflow" o)
+        ["overflow" (d :guard #{"x" "y"}) (o :guard u/overflow)]
         (rule (str "overflow-" d) o)
         ["scrolling" (o :guard #{"touch" "auto"})]
         (rule "-webkit-overflow-scrolling" o)
@@ -250,7 +151,7 @@
 
         ;; text align
 
-        ["text" (c :guard text-align)]
+        ["text" (c :guard u/text-align)]
         (rule "text-align" c)
 
         ;; text color
@@ -299,7 +200,7 @@
 
         ;; attachment
 
-        ["bg" (a :guard background-attachments)]
+        ["bg" (a :guard u/background-attachments)]
         (rule "background-attachment" a)
 
         ;; color
@@ -339,35 +240,35 @@
 
         ;; style
 
-        ["border" (s :guard border-style)]
+        ["border" (s :guard u/border-style)]
         (rule "border-style" s)
 
         ;; width
 
-        ["border"] (tw->emo ["border" "default"])
+        ["border"] (fragments->emotion ["border" "default"])
 
-        ["border" (s :guard border-sides)]
-        (rule (format "border-%s-width" (border-sides s)) (cfg-> :border-width "default"))
+        ["border" (s :guard u/border-sides)]
+        (rule (format "border-%s-width" (u/border-sides s)) (cfg-> :border-width "default"))
 
-        ["border" (s :guard border-sides) (w :guard (cfg-> :border-width))]
-        (rule (format "border-%s-width" (border-sides s)) (cfg-> :border-width w))
+        ["border" (s :guard u/border-sides) (w :guard (cfg-> :border-width))]
+        (rule (format "border-%s-width" (u/border-sides s)) (cfg-> :border-width w))
 
         ["border" (w :guard (cfg-> :border-width))]
         (rule "border-width" (cfg-> :border-width w))
 
         ;; radius
 
-        ["rounded"] (tw->emo ["rounded" "default"])
+        ["rounded"] (fragments->emotion ["rounded" "default"])
         ["rounded" (r :guard (cfg-> :border-radius))]
         (rule "border-radius" (cfg-> :border-radius r))
 
-        ["rounded" (c :guard corners)] (tw->emo ["rounded" c "default"])
-        ["rounded" (c :guard corners) (r :guard (cfg-> :border-radius))]
-        (rule (format "border-%s-radius" (corners c)) (cfg-> :border-radius r))
+        ["rounded" (c :guard u/corners)] (fragments->emotion ["rounded" c "default"])
+        ["rounded" (c :guard u/corners) (r :guard (cfg-> :border-radius))]
+        (rule (format "border-%s-radius" (u/corners c)) (cfg-> :border-radius r))
 
-        ["rounded" (s :guard sides)] (tw->emo ["rounded" s "default"])
-        ["rounded" (s :guard sides) (r :guard (cfg-> :border-radius))]
-        (apply str (map #(tw->emo ["rounded" % r]) (sides s)))
+        ["rounded" (s :guard u/sides)] (fragments->emotion ["rounded" s "default"])
+        ["rounded" (s :guard u/sides) (r :guard (cfg-> :border-radius))]
+        (apply str (map #(fragments->emotion ["rounded" % r]) (u/sides s)))
 
         ;; -------------------- FLEXBOX ----------------------
 
@@ -423,13 +324,13 @@
 
         ;; grow
 
-        ["flex" "grow"] (tw->emo ["flex" "grow" "default"])
+        ["flex" "grow"] (fragments->emotion ["flex" "grow" "default"])
         ["flex" "grow" (g :guard (cfg-> :flex-grow))]
         (rule "flex-grow" (cfg-> :flex-grow g))
 
         ;; shrink
 
-        ["flex" "shrink"] (tw->emo ["flex" "shrink" "default"])
+        ["flex" "shrink"] (fragments->emotion ["flex" "shrink" "default"])
         ["flex" "shrink" (s :guard (cfg-> :flex-shrink))]
         (rule "flex-shrink" (cfg-> :flex-shrink s))
 
@@ -442,15 +343,15 @@
 
         ;; padding
 
-        [(v :guard padding-fns) (p :guard (cfg-> :padding))]
-        ((padding-fns v) (cfg-> :padding p))
+        [(v :guard u/padding-fns) (p :guard (cfg-> :padding))]
+        ((u/padding-fns v) (cfg-> :padding p))
 
         ;; margin
 
-        [(v :guard margin-fns) (m :guard (cfg-> :margin))]
-        ((margin-fns v) (cfg-> :margin m))
-        ["" (v :guard margin-fns) (m :guard (cfg-> :margin))]
-        ((margin-fns v) (cfg-> :margin (str "-" m)))
+        [(v :guard u/margin-fns) (m :guard (cfg-> :margin))]
+        ((u/margin-fns v) (cfg-> :margin m))
+        ["" (v :guard u/margin-fns) (m :guard (cfg-> :margin))]
+        ((u/margin-fns v) (cfg-> :margin (str "-" m)))
 
         ;; -------------------- SIZING -----------------------
 
@@ -500,7 +401,7 @@
 
         ;; box shadows
 
-        ["shadow"] (tw->emo ["shadow" "default"])
+        ["shadow"] (fragments->emotion ["shadow" "default"])
         ["shadow" (s :guard (cfg-> :box-shadow))]
         (rule "box-shadow" (cfg-> :box-shadow s))
 
@@ -554,68 +455,30 @@
         ["stroke" (s :guard (cfg-> :stroke))]
         (rule "stroke" (cfg-> :stroke s))))))
 
-(defn tailwind->emotion
-  "given a single tailwind classname split it into fragments
-  before invoking core.match to generate the css data"
-  [classname]
-  (tw->emo (str/split classname #"[:-]")))
 
-(defn split-classes [s]
-  (-> (name s) str/trim (str/split #"\s+")))
+(def fragments->css
+  "TODO"
+  (memoize
+    (fn [class fragments]
+      (match fragments
 
-(defn tw->css [strings]
-  (->> (mapcat split-classes strings)
-       (map tailwind->emotion)
-       (apply str)))
+        ;; responsive breakpoints - media queries
+        [(screen :guard (cfg-> :screens)) & rest]
+        (let [{:strs [base]} (fragments->css class rest)
+              width (cfg-> :screens screen)]
+          {screen (format "\n@media(min-width: %spx){%s}" width base)})
 
-(defmacro tw
-  "Given one or more strings containing whitespace separated tailwind classes
-  return a string of css.
+        ;; pseudo classes
+        [(p :guard u/pseudo-classes) & rest]
+        {"base" (format "\n.%s:%s{%s}" (u/escape class) p (fragments->emotion rest))}
 
-  The intention is that the result can be processed by a css-in-js library
-  such as emotion. Example (tw \"w-full max-w-sm my-3\")"
-  [& strings]
-  (tw->css strings))
+        ;; container
+        ["container"]
+        (reduce-kv
+          #(assoc %1 %2 (format "\n@media(min-width:%spx){.container{max-width:%spx;}}" %3 %3))
+          {"base" "\n.container{\nwidth:100%;\n}\n"}
+          (cfg-> :screens))
 
-;; base styles. normalize.css + tailwind preflight
-
-(def normalize "/*! normalize.css v8.0.1 | MIT License | github.com/necolas/normalize.css */html{line-height:1.15;-webkit-text-size-adjust:100%}body{margin:0}main{display:block}h1{font-size:2em;margin:.67em 0}hr{box-sizing:content-box;height:0;overflow:visible}pre{font-family:monospace,monospace;font-size:1em}a{background-color:transparent}abbr[title]{border-bottom:none;text-decoration:underline;text-decoration:underline dotted}b,strong{font-weight:bolder}code,kbd,samp{font-family:monospace,monospace;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}img{border-style:none}button,input,optgroup,select,textarea{font-family:inherit;font-size:100%;line-height:1.15;margin:0}button,input{overflow:visible}button,select{text-transform:none}[type=button],[type=reset],[type=submit],button{-webkit-appearance:button}[type=button]::-moz-focus-inner,[type=reset]::-moz-focus-inner,[type=submit]::-moz-focus-inner,button::-moz-focus-inner{border-style:none;padding:0}[type=button]:-moz-focusring,[type=reset]:-moz-focusring,[type=submit]:-moz-focusring,button:-moz-focusring{outline:1px dotted ButtonText}fieldset{padding:.35em .75em .625em}legend{box-sizing:border-box;color:inherit;display:table;max-width:100%;padding:0;white-space:normal}progress{vertical-align:baseline}textarea{overflow:auto}[type=checkbox],[type=radio]{box-sizing:border-box;padding:0}[type=number]::-webkit-inner-spin-button,[type=number]::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}[type=search]::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}details{display:block}summary{display:list-item}template{display:none}[hidden]{display:none}")
-(def preflight "html{box-sizing:border-box;font-family:sans-serif}*,::after,::before{box-sizing:inherit}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,p,pre{margin:0}button{background:0 0;padding:0}button:focus{outline:1px dotted;outline:5px auto -webkit-focus-ring-color}fieldset{margin:0;padding:0}ol,ul{list-style:none;margin:0;padding:0}html{font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,\"Helvetica Neue\",Arial,\"Noto Sans\",sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\",\"Segoe UI Symbol\",\"Noto Color Emoji\";line-height:1.5}*,::after,::before{border-width:0;border-style:solid;border-color:%s;}img{border-style:solid}textarea{resize:vertical}input::placeholder,textarea::placeholder{color:inherit;opacity:.5}[role=button],button{cursor:pointer}table{border-collapse:collapse}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}button,input,optgroup,select,textarea{padding:0;line-height:inherit;color:inherit}code,kbd,pre,samp{font-family:%s;}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%%;height:auto}")
-
-(defn base-styles []
-  (str normalize
-       (format
-         preflight
-         (cfg-> :border-color :default)
-         (str/join "," (cfg-> :font-family :mono)))))
-
-(defmacro base [] (base-styles))
-
-;; emotion helpers
-
-(defn data->css [d]
-  (cond
-    (string? d) d
-    (map? d) (->> (sort d) (sequence cat) (apply rule))
-    (coll? d) (apply str (map data->css d))))
-
-(defmacro css
-  "Converts basic css data (key value rules) to a string."
-  [& d]
-  (data->css d))
-
-(defn emotion-hash [s]
-  (let [bytes (.getBytes s)
-        hash  (Murmur2/hash bytes (count bytes) (count s))]
-    (str "css-" (Long/toString hash 36))))
-
-;; handy cli entry point
-
-(defn -main [& args]
-  (match (vec args)
-    ["base"] (println (base-styles))
-    ["tw" & rest] (println (tw->css rest))
-    ["hash" & rest] (println (emotion-hash (tw->css rest)))
-    ["default" "keys"] (pprint/pprint (sort (keys default-config)))
-    ["default" & rest] (pprint/pprint (get-in default-config rest))
-    ["config" & rest] (pprint/pprint (get-in config rest))))
+        ;; everything else
+        :else
+        {"base" (format "\n.%s{%s}" (u/escape class) (fragments->emotion fragments))}))))
