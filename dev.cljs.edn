@@ -1,6 +1,6 @@
 ^{:watch-dirs ["dev" "src"]
   :open-url false
-  :css-dirs ["resources/public/css/tw-build"]}
+  :css-dirs ["resources/public/css"]}
 {:main       tailwind.examples
  :output-to  "resources/public/js/examples.js"
  :output-dir "resources/public/js/build"
