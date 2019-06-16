@@ -1,2 +1,1 @@
-{"output-file" "resources/public/css/examples.css"
- "font-family" {"mono" ^:replace ["\"Ubuntu Mono\"" "monospace"]}}
+{"font-family" {"mono" ^:replace ["\"Ubuntu Mono\"" "monospace"]}}
