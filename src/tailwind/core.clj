@@ -7,7 +7,8 @@
     [tailwind.util :as u]
     [tailwind.transform :as t]
     [clojure.java.io :as io]
-    [clojure.string :as str]))
+    [clojure.string :as str])
+  (:import (java.io Writer StringWriter)))
 
 ;; emotion style
 
@@ -26,43 +27,43 @@
   [& strings]
   (tw->emotion strings))
 
-;; generate css files
+;; extract css
 
-(def build-files
-  (delay
-    (let [out  (io/file (cfg-> :output-file))
-          dir  (.getParentFile out)
-          base (io/file dir "tw-build" "base.css")]
-      (io/make-parents out)
-      (spit out "@import 'tw-build/base.css';\n")
-      (io/make-parents base)
-      (spit base (base/styles))
-      (reduce
-        (fn [acc [screen _]]
-          (let [path (format "tw-build/%s.css" screen)
-                file (io/file dir path)
-                rule (format "@import '%s';\n" path)]
-            (spit out rule :append true)
-            (spit file "")
-            (assoc acc screen file)))
-        {"base" base "out" out}
-        (sort-by second (cfg-> :screens))))))
+(def rules
+  (atom
+    (reduce-kv
+      #(assoc %1 %3 (sorted-map))
+      (sorted-map nil (sorted-map))
+      (cfg-> :screens))))
 
-(def persisted (atom #{}))
+(def mwm (partial merge-with merge))
 
-(defmacro tw!
-  "Given one or more strings containing whitespace separated tailwind classes
-  generate tailwind css and append it to the build files.
-
-  Return a single string with all the tailwind classes."
-  [& strings]
+(defmacro tw! [& strings]
   (let [classes (mapcat u/split-classes strings)]
-    (doseq [class classes]
-      (when-not (contains? @persisted class)
-        (doseq [[screen rule] (t/fragments->css class (u/split-fragments class))]
-          (spit (get @build-files screen) rule :append true))
-        (swap! persisted conj class)))
+    (apply swap! rules mwm (map t/class->css classes))
     (str/join " " classes)))
+
+(defn write-rules! [^Writer writer rules base?]
+  (with-open [out writer]
+    (when base?
+      (.write out (base/styles))
+      (.write out "\n\n"))
+    (doseq [[bp bp-rules] rules]
+      (when bp (.write out (format "\n@media (min-width: %spx) {\n" bp)))
+      (doseq [[_ rule] bp-rules] (.write out (str rule "\n")))
+      (when bp (.write out "}\n")))))
+
+(defmacro spit-css! [path]
+  (io/make-parents path)
+  (write-rules! (io/writer path) @rules true))
+
+(defn tw->css [strings]
+  (let [sw (StringWriter.)
+        rs (->> (mapcat u/split-classes strings)
+                (map t/class->css)
+                (apply mwm))]
+    (write-rules! sw rs false)
+    (str sw)))
 
 (defmacro base [] (base/styles))
 
@@ -72,6 +73,7 @@
   (match (vec args)
     ["base"] (println (base/styles))
     ["tw" & rest] (println (tw->emotion rest))
+    ["tw!" & rest] (print (tw->css rest))
     ["hash" & rest] (-> rest tw->emotion u/emotion-hash println)
     ["default" & rest] (pprint (get-in cfg/default-config rest))
     ["config" "keys"] (-> cfg/config keys sort pprint)

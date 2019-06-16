@@ -1,6 +1,4 @@
-{"output-file"      "tailwind.css"
-
- "screens"          {"sm" 640 "md" 768 "lg" 1024 "xl" 1280}
+{"screens"          {"sm" 640 "md" 768 "lg" 1024 "xl" 1280}
 
  "colors"           {"transparent" "transparent"
                      "black"       "#000"

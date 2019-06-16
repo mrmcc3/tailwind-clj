@@ -464,21 +464,23 @@
 
         ;; responsive breakpoints - media queries
         [(screen :guard (cfg-> :screens)) & rest]
-        (let [{:strs [base]} (fragments->css class rest)
-              width (cfg-> :screens screen)]
-          {screen (format "\n@media(min-width: %spx){%s}" width base)})
+        {(cfg-> :screens screen)
+         (get (fragments->css class rest) nil)}
 
         ;; pseudo classes
         [(p :guard u/pseudo-classes) & rest]
-        {"base" (format "\n.%s:%s{%s}" (u/escape class) p (fragments->emotion rest))}
+        {nil {class (format ".%s:%s{%s}" (u/escape class) p (fragments->emotion rest))}}
 
         ;; container
         ["container"]
         (reduce-kv
-          #(assoc %1 %2 (format "\n@media(min-width:%spx){.container{max-width:%spx;}}" %3 %3))
-          {"base" "\n.container{\nwidth:100%;\n}\n"}
+          #(assoc %1 %3 {class (format ".container{max-width:%spx;}" %3)})
+          {nil {class ".container{width:100%;}"}}
           (cfg-> :screens))
 
         ;; everything else
         :else
-        {"base" (format "\n.%s{%s}" (u/escape class) (fragments->emotion fragments))}))))
+        {nil {class (format ".%s{%s}" (u/escape class) (fragments->emotion fragments))}}))))
+
+(defn class->css [class]
+  (fragments->css class (u/split-fragments class)))

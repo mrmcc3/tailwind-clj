@@ -3,7 +3,7 @@
     [cljsjs.emotion]
     [uix.core.alpha :as uix]
     [uix.dom.alpha :as uix.dom]
-    [tailwind.core :refer [tw tw!]]))
+    [tailwind.core :refer [tw tw! spit-css!]]))
 
 ;; tw + uix/add-transform-fn for emotion
 
@@ -192,3 +192,5 @@
   (do (uix/add-transform-fn css-uix-transform)
       (render)
       true))
+
+(spit-css! "resources/public/css/examples.css")
