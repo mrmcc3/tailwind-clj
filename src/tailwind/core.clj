@@ -49,9 +49,10 @@
       (.write out (base/styles))
       (.write out "\n\n"))
     (doseq [[bp bp-rules] rules]
-      (when bp (.write out (format "\n@media (min-width: %spx) {\n" bp)))
-      (doseq [[_ rule] bp-rules] (.write out (str rule "\n")))
-      (when bp (.write out "}\n")))))
+      (when (seq bp-rules)
+        (when bp (.write out (format "\n@media (min-width: %spx) {\n" bp)))
+        (doseq [[_ rule] bp-rules] (.write out (str rule "\n")))
+        (when bp (.write out "}\n"))))))
 
 (defmacro spit-css! [path]
   (io/make-parents path)
