@@ -1,9 +1,9 @@
 ## tailwind-clj
 
-A clojure library that processes [tailwindcss](https://tailwindcss.com/) 
+A clojure library that processes [tailwindcss][tailwind]
 utility classes, generates css rules and either writes the output to a
 css file or returns css data (suitable for css-in-js libraries such as 
-[emotion](https://emotion.sh/docs/introduction)).
+[emotion]).
 
 When developing client applications with ClojureScript and `tailwind-clj`
 
@@ -47,10 +47,13 @@ $ clj -m tailwind.core tw! font-mono
 .font-mono{font-family:Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;}
 ```
 
+`dev/tailwind/examples.cljs` has some example components from the tailwind site rendered
+using [uix] and [emotion]. [result][examples]
+
 ### Rationale
 
 If you're unfamiliar with the rationale behind tailwind css 
-read [this page](https://tailwindcss.com/docs/utility-first). 
+read [utility first][utility-first] page from the tailwind docs. 
 In short the idea is that you can generate a whole bunch of utility 
 classes that in most cases correspond to a single css rule. By combining 
 these classes in various ways you can create complex user interfaces. 
@@ -72,7 +75,7 @@ size of the resulting css has a combinatorial explosion. Tailwind minimizes the
 issue by carefully choosing the default set of utilities and disabling all but 
 the most used variants. Even then you're looking at ~400KB of uncompressed css. 
 A good portion of that is most likely unused. Tools like 
-[Purgecss](https://github.com/FullHuman/purgecss) can help remove the unused classes.
+[purgecss] can help remove the unused classes.
 
 In ClojureScript we can just generate the utility classes as we need them using 
 macros at compile time. While we're at it we can make customization simpler by
@@ -93,7 +96,7 @@ to define attributes like border-color, padding and margin.
 If you would like to customize the configuration then place a `tailwind.edn`
 file on the classpath with your customizations. This file will be read and
 merged with the default config **before** expansion using 
-[meta-merge](https://github.com/weavejester/meta-merge). 
+[meta-merge]. 
 
 For example `{"spacing" {"perfect" "23px"}}` would add `perfect` to `spacing`
 and all attributes that depend on it like `margin` and `padding`
@@ -111,3 +114,11 @@ meta-merge hint ^:replace is what you want
 If you want to skip the expansion mechanism you can add an extra `^:final` 
 hint to a calculated attribute. For example
 `{"padding" ^:replace ^:final {"perfect" "23px"}}`
+
+[tailwind]: https://tailwindcss.com/ 
+[examples]: https://mrmcc3.github.io/tailwind-clj/
+[utility-first]: https://tailwindcss.com/docs/utility-first
+[purgecss]: https://github.com/FullHuman/purgecss
+[meta-merge]: https://github.com/weavejester/meta-merge 
+[emotion]: https://emotion.sh/docs/introduction
+[uix]: https://github.com/roman01la/uix
