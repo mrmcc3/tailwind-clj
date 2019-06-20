@@ -40,11 +40,17 @@ $ clojure -m cljs.main -c tailwind.example
 .text-gray-800{color:#2d3748;}
 ```
 
+You can also test the `tw!` macro at the command line
+
+```
+$ clj -m tailwind.core tw! font-mono
+.font-mono{font-family:Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;}
+```
+
 ### Rationale
 
-If you're unfamiliar with the rationale behind tailwind css.
-Read [this page](https://tailwindcss.com/docs/utility-first)
-
+If you're unfamiliar with the rationale behind tailwind css 
+read [this page](https://tailwindcss.com/docs/utility-first). 
 In short the idea is that you can generate a whole bunch of utility 
 classes that in most cases correspond to a single css rule. By combining 
 these classes in various ways you can create complex user interfaces. 
@@ -68,7 +74,7 @@ the most used variants. Even then you're looking at ~400KB of uncompressed css.
 A good portion of that is most likely unused. Tools like 
 [Purgecss](https://github.com/FullHuman/purgecss) can help remove the unused classes.
 
-In ClojureScript we could just generate the utility classes as we need them using 
+In ClojureScript we can just generate the utility classes as we need them using 
 macros at compile time. While we're at it we can make customization simpler by
 just dropping a `tailwind.edn` file somewhere on the classpath.
 
@@ -81,13 +87,6 @@ to define attributes like border-color, padding and margin.
 * The default config before expansion is at `src/tailwind/defaults.edn`.
 * To view the expanded default config `clj -m tailwind.core default`
 * To drill down into the config pass extra args `clj -m tailwind.core default colors blue`
-
-You can also test the `tw!` macro at the command line
-
-```
-$ clj -m tailwind.core tw! font-mono
-.font-mono{font-family:Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;}
-```
 
 ### User customization
 
