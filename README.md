@@ -53,7 +53,7 @@ using [uix] and [emotion]. [result][examples]
 ### Rationale
 
 If you're unfamiliar with the rationale behind tailwind css 
-read [utility first][utility-first] page from the tailwind docs. 
+read the [utility first][utility-first] page from the tailwind docs. 
 In short the idea is that you can generate a whole bunch of utility 
 classes that in most cases correspond to a single css rule. By combining 
 these classes in various ways you can create complex user interfaces. 
