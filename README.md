@@ -20,7 +20,7 @@ When developing client applications with ClojureScript and `tailwind-clj`
   (:require [tailwind.core :refer [tw! spit-css!]]))
 
 (tw! "flex flex-col items-center" "py-3 m-4" :text-gray-800) ;; strings or keywords
-;; => "flex flex-col items-center py-3 text-gray-800"
+;; => "flex flex-col items-center py-3 m-4 text-gray-800"
 
 (spit-css! "styles.css")
 ```
