@@ -13,6 +13,11 @@ When developing client applications with ClojureScript and `tailwind-clj`
 * fits nicely with figwheel based development
 * get all the benefits of tailwind (see rationale below)
 
+```clojure
+{:deps {mrmcc3/tailwind-clj {:git/url "https://github.com/mrmcc3/tailwind-clj.git"
+                             :sha     "f83a923714951b07ea5145aa79a7cb25489bcef1"}}}
+```
+
 ### Example
 
 ```clojure
