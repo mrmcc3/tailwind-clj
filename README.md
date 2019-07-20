@@ -15,7 +15,7 @@ When developing client applications with ClojureScript and `tailwind-clj`
 
 ```clojure
 {:deps {mrmcc3/tailwind-clj {:git/url "https://github.com/mrmcc3/tailwind-clj.git"
-                             :sha     "f83a923714951b07ea5145aa79a7cb25489bcef1"}}}
+                             :sha     "67dc8999aef155dc197b4f207932b658e4496d39"}}}
 ```
 
 ### Example
