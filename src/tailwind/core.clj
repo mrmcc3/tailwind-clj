@@ -29,12 +29,13 @@
 
 ;; extract css
 
-(def rules
-  (atom
-    (reduce-kv
-      #(assoc %1 %3 (sorted-map))
-      (sorted-map nil (sorted-map))
-      (cfg-> :screens))))
+(def empty-rules
+  (reduce-kv
+    #(assoc %1 %3 (sorted-map))
+    (sorted-map nil (sorted-map))
+    (cfg-> :screens)))
+
+(def rules (atom empty-rules))
 
 (def mwm (partial merge-with merge))
 
@@ -58,13 +59,15 @@
   (io/make-parents path)
   (write-rules! (io/writer path) @rules true))
 
-(defn tw->css [strings]
-  (let [sw (StringWriter.)
-        rs (->> (mapcat u/split-classes strings)
-                (map t/class->css)
-                (apply mwm))]
-    (write-rules! sw rs false)
-    (str sw)))
+(defn tw->css
+  ([strings] (tw->css strings false))
+  ([strings base?]
+   (let [sw (StringWriter.)
+         rs (->> (mapcat u/split-classes strings)
+                 (map t/class->css)
+                 (apply mwm empty-rules))]
+     (write-rules! sw rs base?)
+     (str sw))))
 
 (defmacro base [] (base/styles))
 
