@@ -18,7 +18,7 @@
        (apply str)))
 
 (def pseudo-classes
-  #{"group-hover" "focus-within" "hover" "focus" "active"})
+  #{"group-hover" "focus-within" "hover" "focus" "active" "disabled" "visited"})
 
 (def background-attachments
   #{"fixed" "local" "scroll"})
@@ -63,7 +63,7 @@
   {"t" "top" "l" "left" "r" "right" "b" "bottom"})
 
 (def border-style
-  #{"solid" "dashed" "dotted" "none"})
+  #{"solid" "dashed" "dotted" "none" "double"})
 
 (defn emotion-hash
   "Replicate emotion hash. useful for server side rendering"
