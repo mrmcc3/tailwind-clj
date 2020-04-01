@@ -23,7 +23,7 @@ and is based on v1.0.0 of tailwind.
 
 * autoprefixer
 * css minification
-* support for tailwind plugins like [custom-forms](https://github.com/tailwindcss/custom-forms)
+* tailwind plugins like [custom-forms](https://github.com/tailwindcss/custom-forms)
 * tailwind UI which requires a custom tailwind plugin / custom-forms
 
 If any of the above are requirements then you'll likely be better off using
