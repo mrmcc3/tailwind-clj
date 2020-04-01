@@ -11,14 +11,33 @@ When developing client applications with ClojureScript and `tailwind-clj`
 * you don't have to integrate any nodejs tooling into your dev flow
 * customize tailwind with a `tailwind.edn` file on the classpath
 * fits nicely with figwheel based development
-* get all the benefits of tailwind (see rationale below)
+* get a lot of the benefits of tailwind (see rationale below)
+
+### Project Status
+
+The motivation for this library is to investigate the generation of
+Tailwind like utility classes on the fly directly with Clojure[Script]
+and is based on v1.0.0 of tailwind. 
+
+`tailwind-clj` does not support
+
+* autoprefixer
+* css minification
+* support for tailwind plugins like [custom-forms](https://github.com/tailwindcss/custom-forms)
+* tailwind UI which requires a custom tailwind plugin / custom-forms
+
+If any of the above are requirements then you'll likely be better off using
+the official tooling which **does** work with ClojureScript. For an example
+see https://github.com/mrmcc3/tailwind-cljs-example
+
+If you're not interested in the nodejs tooling then read on.
+
+### Example
 
 ```clojure
 {:deps {mrmcc3/tailwind-clj {:git/url "https://github.com/mrmcc3/tailwind-clj.git"
                              :sha     "67dc8999aef155dc197b4f207932b658e4496d39"}}}
 ```
-
-### Example
 
 ```clojure
 (ns tailwind.example
